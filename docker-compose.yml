@@ -1,0 +1,53 @@
+# Local / single-host deployment: PostgreSQL + FastAPI (with Tesseract) + nginx-served React app.
+# Usage:
+#   cp env.example .env   # then set POSTGRES_PASSWORD and JWT_SECRET_KEY
+#   docker compose up --build
+# App: http://localhost:8080   API docs: http://localhost:8080/api/docs
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-certifix}
+      POSTGRES_USER: ${POSTGRES_USER:-certifix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-certifix} -d ${POSTGRES_DB:-certifix}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-certifix}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-certifix}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in .env}
+      CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:8080}
+      PUBLIC_VERIFY_BASE_URL: ${PUBLIC_URL:-http://localhost:8080}/verify
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-10}
+      UPLOAD_RETENTION_DAYS: ${UPLOAD_RETENTION_DAYS:-180}
+    volumes:
+      - storage:/data/storage
+    # Not published: only reachable through the frontend's /api proxy.
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+
+volumes:
+  pgdata:
+  storage:

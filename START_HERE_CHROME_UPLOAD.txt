@@ -1,0 +1,17 @@
+CERTIFIX AI — GITHUB CHROME UPLOAD (NO GIT COMMANDS)
+
+1. Extract this ZIP first. Do not upload the ZIP file itself.
+2. Create a NEW EMPTY GitHub repository (choose public if you want a public Pages site).
+3. In Chrome open the repository > Add file > Upload files.
+4. Open the extracted folder and upload its CONTENTS, keeping frontend/, backend/, docs/, scripts/, and github-workflows/ paths intact. Chrome's upload UI may work best by dragging the folders from a desktop file manager. If Chrome does not preserve folder structure, use GitHub's Create new file path interface or GitHub Desktop.
+5. Commit the uploaded files.
+6. IMPORTANT REQUIRED ONE-TIME STEP: Open github-workflows/deploy-pages.yml and copy its entire contents. On the repository home page choose Add file > Create new file. Type exactly .github/workflows/deploy-pages.yml as the new file name, paste the contents, and commit. GitHub Actions cannot run the workflow from github-workflows/ alone.
+7. Settings > Pages > Build and deployment > Source: GitHub Actions.
+8. Actions > Deploy to GitHub Pages: wait for the successful workflow.
+9. Visit https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/
+
+OPTIONAL .gitignore: Open GITIGNORE_TEMPLATE.txt, copy its text, then GitHub > Add file > Create new file > filename .gitignore > paste > commit. It is NOT required for the site to run. The template is a FILE, not a folder.
+
+LIMITATIONS: GitHub Pages hosts only the React frontend, with browser-local demo mode. Browser storage is device-specific and not a shared secure database; demo credentials are not production authentication. For real multi-user accounts, production OCR, and persistent server records, separately deploy backend and database. Do not upload secrets, real .env files, or private certificates.
+
+The application UI and feature source files have not been changed.
